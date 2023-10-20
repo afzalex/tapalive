@@ -1,0 +1,31 @@
+plugins {
+    id 'java'
+    id 'application'
+    id "io.freefair.lombok" version "8.4"
+}
+
+group = 'com.fz'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'ch.qos.logback:logback-core:1.4.11'
+    implementation 'ch.qos.logback:logback-classic:1.4.11'
+    annotationProcessor 'org.projectlombok:lombok'
+    compileOnly 'org.projectlombok:lombok'
+    implementation 'com.github.kwhat:jnativehook:2.2.2'
+}
+jar {
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    manifest {
+        attributes 'Main-Class': 'com.fz.Main'
+    }
+    duplicatesStrategy = 'exclude'
+}
+
+application {
+    mainClass = 'com.fz.Main'
+}
