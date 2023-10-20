@@ -8,9 +8,9 @@ import java.time.LocalTime;
 
 public class GlobalMouseMovementListener implements NativeMouseInputListener {
 
-    Reference<LocalTime> lastActivityTime;
+    IgnorableReference<LocalTime> lastActivityTime;
 
-    public GlobalMouseMovementListener(Reference<LocalTime> lastActivityTime) {
+    public GlobalMouseMovementListener(IgnorableReference<LocalTime> lastActivityTime) {
         this.lastActivityTime = lastActivityTime;
     }
 

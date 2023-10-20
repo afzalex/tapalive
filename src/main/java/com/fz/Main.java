@@ -19,27 +19,23 @@ public class Main {
     public static final LocalTime TIMEFRAME_END = LocalTime.of(22, 0);
 
 
-    private final Reference<LocalTime> lastActivityTime = new Reference<>(LocalTime.now());
-    private final GlobalMouseMovementListener mouseMovementListener = new GlobalMouseMovementListener(lastActivityTime);
+    private final IgnorableReference<LocalTime> lastActivityTime = new IgnorableReference<>(LocalTime.now());
+    private final GlobalMouseMovementListener mouseListener = new GlobalMouseMovementListener(lastActivityTime);
 
     private void activateKeyDetector() {
         GlobalScreen.addNativeKeyListener(new GlobalKeyListener(lastActivityTime));
     }
 
     private void activateMouseDetector() {
-        GlobalScreen.addNativeMouseListener(mouseMovementListener);
-        GlobalScreen.addNativeMouseMotionListener(mouseMovementListener);
+        GlobalScreen.addNativeMouseListener(mouseListener);
+        GlobalScreen.addNativeMouseMotionListener(mouseListener);
     }
 
-    private void deActivateMouseDetector() {
-        GlobalScreen.removeNativeMouseListener(mouseMovementListener);
-        GlobalScreen.removeNativeMouseMotionListener(mouseMovementListener);
-    }
-
-    public void run() throws NativeHookException, AWTException {
+    public void run() throws NativeHookException, AWTException, InterruptedException {
         log.info("Welcome to TapAlive");
         GlobalScreen.registerNativeHook();
-
+        activateKeyDetector();
+        activateMouseDetector();
         Robot bot = new Robot();
         while (true) {
             var now = LocalTime.now();
@@ -48,21 +44,20 @@ public class Main {
                 System.exit(1);
             }
             bot.delay(30 * 1000);
-            if (ChronoUnit.MINUTES.between(lastActivityTime.get(), LocalTime.now()) < 1) {
+            if (ChronoUnit.SECONDS.between(lastActivityTime.get(), LocalTime.now()) < 60) {
                 log.info("Ignoring because recent activity detected at {}", lastActivityTime.get());
                 continue;
             }
-            deActivateMouseDetector();
+            lastActivityTime.ignoreForSometime();
             Point pointerLocation = MouseInfo.getPointerInfo().getLocation();
             log.info("Triggered mouse down at {}", pointerLocation);
             bot.mouseMove(pointerLocation.x, pointerLocation.y);
             bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
             bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
-            activateMouseDetector();
         }
     }
 
-    public static void main(String[] args) throws AWTException, NativeHookException {
+    public static void main(String[] args) throws AWTException, NativeHookException, InterruptedException {
         Main main = new Main();
         main.run();
     }
