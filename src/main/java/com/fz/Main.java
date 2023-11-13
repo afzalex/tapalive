@@ -45,7 +45,7 @@ public class Main {
             }
             bot.delay(30 * 1000);
             if (ChronoUnit.SECONDS.between(lastActivityTime.get(), LocalTime.now()) < 60) {
-                log.info("Ignoring because recent activity detected at {}", lastActivityTime.get());
+                log.info("Ignoring because recent activity detected");
                 continue;
             }
             lastActivityTime.ignoreForSometime();
